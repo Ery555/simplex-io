@@ -1,0 +1,22 @@
+.conda/
+env/
+venv/
+ENV/
+
+# --- Python y Caché ---
+# Archivos temporales de ejecución
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# --- Streamlit ---
+# Ignoramos los secretos, pero MANTENEMOS la configuración de estilo
+.streamlit/secrets.toml
+
+# --- Datos y Assets ---
+# Ignora archivos de datos pesados o temporales (si aplica)
+data/*.csv  <-- Descomenta esto si tus CSV pesan mucho y prefieres no subirlos
+.DS_Store
+Thumbs.db
+.vscode/

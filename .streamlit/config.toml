@@ -1,0 +1,11 @@
+[theme]
+primaryColor = "#00FFAA" # Verde neón para los botones y sliders
+backgroundColor = "#0E1117" # Fondo oscuro profundo
+secondaryBackgroundColor = "#262730" # Color de la barra lateral
+textColor = "#FAFAFA"
+font = "sans serif"
+[server]
+runOnSave = true
+
+[browser]
+gatherUsageStats = false
