@@ -487,36 +487,33 @@ elif opcion == "Flujo de Redes":
         with col2:
             st.radio(
                 "Tipo de Problema", 
-                ["Flujo Máximo", "Ruta Más Corta", "Costo Mínimo"], 
+                ["Flujo Máximo", "Ruta Más Corta"], 
                 horizontal=True, 
                 key="tipo_problema_redes"
             )
             
     st.info("💡 **Instrucciones:** Define tu grafo. Usa letras o números para los nodos (ej. 'O' para Origen, 'T' para Destino).")
 
-    # Contenedores dinámicos según el tipo de problema
-    tipo_prob = st.session_state.tipo_problema_redes
-    
-    if tipo_prob in ["Flujo Máximo", "Ruta Más Corta"]:
-        c_origen, c_destino = st.columns(2)
-        with c_origen:
-            st.text_input("📍 Nodo de Inicio (Source)", value="O", key="nodo_inicio")
-        with c_destino:
-            st.text_input("🏁 Nodo Final (Sink)", value="T", key="nodo_final")
+    # Inputs de Nodos Inicio y Fin
+    c_origen, c_destino = st.columns(2)
+    with c_origen:
+        st.text_input("📍 Nodo de Inicio (Source)", value="O", key="nodo_inicio")
+    with c_destino:
+        st.text_input("🏁 Nodo Final (Sink)", value="T", key="nodo_final")
 
     st.subheader("📝 Lista de Arcos (Edge List)")
     
-    # Configuramos qué columnas se pueden editar dependiendo del problema
+    tipo_prob = st.session_state.tipo_problema_redes
     column_config = {
         "Nodo Origen": st.column_config.TextColumn("Nodo Origen", required=True),
         "Nodo Destino": st.column_config.TextColumn("Nodo Destino", required=True),
     }
     
-    # Ocultar columnas irrelevantes según el problema para no confundir al usuario
+    # Ocultar columnas irrelevantes
     if tipo_prob == "Flujo Máximo":
-        column_config["Costo Unitario"] = None # Ocultamos costo
+        column_config["Costo Unitario"] = None
     elif tipo_prob == "Ruta Más Corta":
-        column_config["Capacidad"] = None # Ocultamos capacidad
+        column_config["Capacidad"] = None
         
     st.data_editor(
         st.session_state.df_redes, 
@@ -528,17 +525,53 @@ elif opcion == "Flujo de Redes":
 
     st.markdown("---")
     if st.button("🚀 Resolver Red", type="primary", use_container_width=True):
-        # 1. Consolidar datos
+        
+        # 1. Consolidación de datos
         df_final_r = st.session_state.df_redes.copy()
         if 'editor_redes' in st.session_state:
             for r_idx, changes in st.session_state.editor_redes.get('edited_rows', {}).items():
                 for c, v in changes.items():
                     df_final_r.at[df_final_r.index[r_idx], c] = v
-                    
-        st.success(f"Datos de {tipo_prob} capturados correctamente.")
-        st.dataframe(df_final_r)
-        # Próximamente: Llamada a modules.network_solver.py
-        
+
+        from modules.network_solver import resolver_flujo_maximo, resolver_ruta_mas_corta
+        origen = st.session_state.nodo_inicio.strip()
+        destino = st.session_state.nodo_final.strip()
+
+        # 2. Enrutador
+        if tipo_prob == "Flujo Máximo":
+            resultado = resolver_flujo_maximo(df_final_r, origen, destino)
+            label_z = "Flujo Máximo Total"
+        else: # Ruta Más Corta
+            resultado = resolver_ruta_mas_corta(df_final_r, origen, destino)
+            label_z = "Distancia Mínima Total"
+
+        # 3. Mostrar Resultados
+        if "error" in resultado:
+            st.error(resultado["error"])
+        elif resultado["status"] != "Optimal":
+            st.warning("No se encontró una solución óptima para esta red.")
+        else:
+            st.success(f"¡Cálculo de {tipo_prob} Exitoso!")
+            st.divider()
+            
+            c1, c2 = st.columns(2)
+            c1.metric("Estado", "Óptimo")
+            c2.metric(label_z, f"{resultado['valor']:,.2f}")
+            
+            st.subheader("🛤️ Detalle de Rutas Utilizadas")
+            if not resultado["rutas"].empty:
+                st.dataframe(resultado["rutas"], use_container_width=True)
+                
+                # Restaurado: Análisis de cuellos de botella exclusivo para Flujo Máximo
+                if tipo_prob == "Flujo Máximo":
+                    df_rutas = resultado["rutas"]
+                    rutas_saturadas = len(df_rutas[df_rutas["Capacidad Sobrante"] == 0])
+                    st.info(f"💡 **Análisis de Cuellos de Botella:** Tienes **{rutas_saturadas}** rutas operando a su máxima capacidad (Sobrante = 0). Para mejorar el flujo total, debes expandir la capacidad de estas rutas.")
+            else:
+                st.warning("No es posible establecer una ruta con esta configuración.")
+            
+            st.balloons()
+
 with st.expander("Ver Manual de Uso"):
     st.write("""
     1. Define las dimensiones arriba.
