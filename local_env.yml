@@ -13,6 +13,7 @@ dependencies:
   - plotly
   - graphviz
   - openpyxl
+  - weasyprint
   - pip
   - pip:
     - streamlit-agraph

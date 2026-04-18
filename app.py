@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from modules import linear_solver #Esto funcionará gracias al __init__.py
-
+from modules.linear_solver import resolver_lp
+from modules.generador_reportes import generar_reporte_texto
 # Configuración de la página
 st.set_page_config(page_title="IO Modern Solver - UMSA", layout="wide")
 # --- 1. INICIALIZACIÓN GLOBAL PROG LINEAL ---
@@ -237,7 +237,7 @@ if opcion == "Programación Lineal":
                     restr_final.at[restr_final.index[r_idx], c] = v
 
         # 2. LLAMADA AL SOLVER
-        from modules.linear_solver import resolver_lp
+        
         resultado = resolver_lp(obj_final, restr_final, st.session_state.tipo_opt)
 
         # 3. DESPLIEGUE DE RESULTADOS
@@ -329,6 +329,45 @@ if opcion == "Programación Lineal":
                 
                 # Renderizamos en Streamlit
                 st.pyplot(fig)
+
+            # ... (debajo de donde muestras el gráfico o las tablas de resultados) ...
+        
+            st.markdown("---")
+            st.subheader("💾 Exportar Resultados")
+            
+            col_exp1, col_exp2 = st.columns(2)
+            
+            # A. GENERAR REPORTE DE TEXTO (Estilo Management Scientist)
+            reporte_txt = generar_reporte_texto(
+                "Programación Lineal",
+                st.session_state.tipo_opt,
+                resultado["z"],
+                resultado["variables"],
+                resultado["sensibilidad"]
+            )
+            
+            with col_exp1:
+                st.download_button(
+                    label="📄 Descargar Reporte Profesional (TXT)",
+                    data=reporte_txt,
+                    file_name=f"Reporte_PL_{st.session_state.tipo_opt}.txt",
+                    mime="text/plain",
+                    use_container_width=True
+                )
+                
+            # B. GENERAR ARCHIVO CSV (Para Excel)
+            # Unimos las variables en un solo CSV
+            df_csv = pd.DataFrame([resultado["variables"]])
+            csv_data = df_csv.to_csv(index=False).encode('utf-8')
+            
+            with col_exp2:
+                st.download_button(
+                    label="📊 Descargar Variables (CSV)",
+                    data=csv_data,
+                    file_name="variables_optimas.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
 
 
 
