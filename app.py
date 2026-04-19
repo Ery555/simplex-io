@@ -3,7 +3,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from modules.linear_solver import resolver_lp
-from modules.generador_reportes import generar_reporte_texto
+from modules.generador_reportes import generar_reporte_pdf
+from modules.generador_reportes import generar_reporte_pdf_transporte
+from modules.generador_reportes import generar_reporte_pdf_asignacion
+from modules.generador_reportes import generar_reporte_pdf_redes
+
+
 # Configuración de la página
 st.set_page_config(page_title="IO Modern Solver - UMSA", layout="wide")
 # --- 1. INICIALIZACIÓN GLOBAL PROG LINEAL ---
@@ -189,7 +194,7 @@ with st.sidebar:
     st.info(f"Módulo seleccionado: {opcion}")
 
 # Lógica de navegación
-# --- 3. INTERFAZ DE PROGRAMACIÓN LINEAL ---
+# --- 3. INTERFAZ DE PROGRAMACIÓN LINEAL -------------------------------------------------------------------
 if opcion == "Programación Lineal":
     st.header("📊 Programación Lineal General")
 
@@ -330,47 +335,30 @@ if opcion == "Programación Lineal":
                 # Renderizamos en Streamlit
                 st.pyplot(fig)
 
-            # ... (debajo de donde muestras el gráfico o las tablas de resultados) ...
-        
             st.markdown("---")
-            st.subheader("💾 Exportar Resultados")
-            
-            col_exp1, col_exp2 = st.columns(2)
-            
-            # A. GENERAR REPORTE DE TEXTO (Estilo Management Scientist)
-            reporte_txt = generar_reporte_texto(
-                "Programación Lineal",
-                st.session_state.tipo_opt,
-                resultado["z"],
-                resultado["variables"],
-                resultado["sensibilidad"]
+            st.subheader("📄 Generar Documentación")
+
+            # Llamamos a la función para crear el archivo PDF temporal
+            ruta_pdf = generar_reporte_pdf(
+                "Programación Lineal", 
+                st.session_state.tipo_opt, 
+                resultado["z"], 
+                resultado["variables"], 
+                resultado.get("sensibilidad")
             )
-            
-            with col_exp1:
+
+            with open(ruta_pdf, "rb") as f:
                 st.download_button(
-                    label="📄 Descargar Reporte Profesional (TXT)",
-                    data=reporte_txt,
-                    file_name=f"Reporte_PL_{st.session_state.tipo_opt}.txt",
-                    mime="text/plain",
-                    use_container_width=True
-                )
-                
-            # B. GENERAR ARCHIVO CSV (Para Excel)
-            # Unimos las variables en un solo CSV
-            df_csv = pd.DataFrame([resultado["variables"]])
-            csv_data = df_csv.to_csv(index=False).encode('utf-8')
-            
-            with col_exp2:
-                st.download_button(
-                    label="📊 Descargar Variables (CSV)",
-                    data=csv_data,
-                    file_name="variables_optimas.csv",
-                    mime="text/csv",
+                    label="📥 Descargar Reporte en PDF",
+                    data=f,
+                    file_name=f"Reporte_Optimización_{st.session_state.tipo_opt}.pdf",
+                    mime="application/pdf",
                     use_container_width=True
                 )
 
 
 
+# --- 3. INTERFAZ DE MODELO DE TRANSPORTE -------------------------------------------------------------------
 
 
 elif opcion == "Modelo de Transporte":
@@ -449,9 +437,32 @@ elif opcion == "Modelo de Transporte":
                     st.json(resultado["duales_demanda"])
             
             st.balloons()
+            st.markdown("---")
+            st.subheader("📄 Generar Documentación")
+
+            # Preparamos el PDF de Transporte
+            ruta_pdf_t = generar_reporte_pdf_transporte(
+                st.session_state.tipo_opt_transp,
+                resultado["z"],
+                resultado["matriz_resultados"],
+                resultado["duales_oferta"],
+                resultado["duales_demanda"],
+                resultado["balanceado"]
+            )
+
+            with open(ruta_pdf_t, "rb") as f:
+                st.download_button(
+                    label="📥 Descargar Reporte de Transporte (PDF)",
+                    data=f,
+                    file_name=f"Reporte_Transporte_{st.session_state.tipo_opt_transp}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
 
 
-# --- MÓDULO: MODELO DE ASIGNACIÓN ---
+
+
+# --- MÓDULO: MODELO DE ASIGNACIÓN -----------------------------------------------------------------
 elif opcion == "Asignación":
     st.header("👥 Modelo de Asignación")
     
@@ -513,6 +524,40 @@ elif opcion == "Asignación":
                 st.dataframe(resultado["matriz_resultados"], use_container_width=True)
             
             st.balloons()
+            st.markdown("---")
+            st.subheader("📄 Generar Documentación")
+
+            # Preparamos el PDF de Asignación
+            ruta_pdf_a = generar_reporte_pdf_asignacion(
+                st.session_state.tipo_opt_asign,
+                resultado["z"],
+                resultado["lista_asignaciones"],
+                resultado["matriz_resultados"],
+                resultado["balanceado"]
+            )
+
+            with open(ruta_pdf_a, "rb") as f:
+                st.download_button(
+                    label="📥 Descargar Reporte de Asignación (PDF)",
+                    data=f,
+                    file_name=f"Reporte_Asignacion_{st.session_state.tipo_opt_asign}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # --- MÓDULO: FLUJO DE REDES ---
 elif opcion == "Flujo de Redes":
@@ -610,6 +655,27 @@ elif opcion == "Flujo de Redes":
                 st.warning("No es posible establecer una ruta con esta configuración.")
             
             st.balloons()
+
+            # --- BOTÓN DE DESCARGA PDF ---
+            st.markdown("---")
+            st.subheader("📄 Generar Documentación")
+            
+            ruta_pdf_r = generar_reporte_pdf_redes(
+                tipo_prob,
+                origen,
+                destino,
+                resultado["valor"],
+                resultado["rutas"]
+            )
+
+            with open(ruta_pdf_r, "rb") as f:
+                st.download_button(
+                    label="📥 Descargar Reporte de Redes (PDF)",
+                    data=f,
+                    file_name=f"Reporte_{tipo_prob.replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True
+                )
 
 with st.expander("Ver Manual de Uso"):
     st.write("""
