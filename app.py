@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import networkx as nx
 from modules.linear_solver import resolver_lp
 from modules.generador_reportes import generar_reporte_pdf
 from modules.generador_reportes import generar_reporte_pdf_transporte
@@ -655,6 +656,50 @@ elif opcion == "Flujo de Redes":
                 st.warning("No es posible establecer una ruta con esta configuración.")
             
             st.balloons()
+
+            st.markdown("---")
+            st.subheader("🌐 Visualización del Grafo Óptimo")
+            
+            try:
+                # 1. Configurar NetworkX y Matplotlib
+                fig, ax = plt.subplots(figsize=(10, 6))
+                plt.style.use("dark_background") # Estilo oscuro para proteger la vista
+                
+                G = nx.DiGraph() # Grafo Dirigido
+                
+                # 2. Extraer rutas activas (las que devolvió el solver)
+                rutas_activas = []
+                for _, row in resultado["rutas"].iterrows():
+                    rutas_activas.append((str(row["De"]), str(row["A"])))
+                
+                # 3. Construir el grafo con TODOS los arcos originales
+                for _, row in df_final_r.iterrows():
+                    u = str(row['Nodo Origen']).strip()
+                    v = str(row['Nodo Destino']).strip()
+                    if u and v: # Si no están vacíos
+                        G.add_edge(u, v)
+                
+                # 4. Dibujar el grafo
+                # spring_layout organiza los nodos para que no se superpongan
+                pos = nx.spring_layout(G, seed=42) 
+                
+                # Dibujar nodos
+                nx.draw_networkx_nodes(G, pos, node_color='#9b59b6', node_size=700, ax=ax)
+                nx.draw_networkx_labels(G, pos, font_color='white', font_weight='bold', ax=ax)
+                
+                # Dibujar arcos inactivos (gris claro/transparente)
+                nx.draw_networkx_edges(G, pos, edgelist=G.edges(), edge_color='#555555', arrows=True, ax=ax)
+                
+                # Dibujar arcos ACTIVOS (los que eligió el solver) en un color brillante
+                nx.draw_networkx_edges(G, pos, edgelist=rutas_activas, edge_color='#2ecc71', width=3.0, arrows=True, arrowsize=20, ax=ax)
+                
+                ax.set_title(f"Grafo de Solución: {tipo_prob}", color='white', pad=20)
+                plt.axis('off') # Ocultar los ejes de coordenadas
+                st.pyplot(fig)
+                
+            except Exception as e:
+                st.warning(f"No se pudo generar la visualización gráfica del grafo: {e}")
+
 
             # --- BOTÓN DE DESCARGA PDF ---
             st.markdown("---")
