@@ -230,7 +230,7 @@ with st.sidebar:
     # 1. Cargamos el logo local (Asegúrate de poner la ruta correcta de tu archivo)
     try:
         # Reemplaza 'ruta/a/tu/logo_umsa.png' por el nombre real de tu archivo
-        logo_base64 = obtener_base64_de_archivo(r"assets\Logo_Umsa.png") 
+         
         ruta_logo = os.path.join("assets", "Logo_Umsa.png") # Ajusta 'assets' si tu carpeta tiene otro nombre
         if os.path.exists(ruta_logo):
             logo_base64 = obtener_base64_de_archivo(ruta_logo)
