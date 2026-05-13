@@ -229,7 +229,7 @@ with st.sidebar:
     # 1. Cargamos el logo local (Asegúrate de poner la ruta correcta de tu archivo)
     try:
         # Reemplaza 'ruta/a/tu/logo_umsa.png' por el nombre real de tu archivo
-        logo_base64 = obtener_base64_de_archivo(r"D:\Proyectos\Universidad\Proyecto IO\assets\Logo_Umsa.png") 
+        logo_base64 = obtener_base64_de_archivo(r"assets\Logo_Umsa.png") 
         
         st.markdown(f"""
             <div style="text-align: center;">
@@ -297,7 +297,7 @@ if opcion == "Programación Lineal":
 
     # --- BOTÓN DE RESOLUCIÓN COMPLETO ---
     st.markdown("---")
-    if st.button("🚀 Resolver con PuLP", type="primary", use_container_width=True):
+    if st.button("Resolver con PuLP", type="primary", icon=":material/rocket_launch:", use_container_width=True):
         
         # 1. FUSIÓN DE DATOS (Asegura que el solver lea lo que ves en pantalla)
         # Fusión Función Objetivo
@@ -449,7 +449,7 @@ elif opcion == "Modelo de Transporte":
 
 # --- BOTÓN DE RESOLUCIÓN (Reemplazar en la sección Transporte) ---
     st.markdown("---")
-    if st.button("🚀 Resolver Modelo de Transporte", type="primary", use_container_width=True):
+    if st.button("Resolver Modelo de Transporte", type="primary", icon=":material/rocket_launch:", use_container_width=True):
         
         # 1. Consolidación de datos
         df_final_t = st.session_state.df_transp.copy()
@@ -555,7 +555,7 @@ elif opcion == "Asignación":
     st.data_editor(st.session_state.df_asign, key="editor_asign", use_container_width=True)
 
     st.markdown("---")
-    if st.button("🚀 Resolver Asignación", type="primary", use_container_width=True):
+    if st.button("Resolver Asignación", type="primary", icon=":material/rocket_launch:", use_container_width=True):
         
         # Consolidar datos
         df_final_a = st.session_state.df_asign.copy()
@@ -683,7 +683,7 @@ elif opcion == "Flujo de Redes":
     )
 
     st.markdown("---")
-    if st.button("🚀 Resolver Red", type="primary", use_container_width=True):
+    if st.button("Resolver Red de Nodos", type="primary", icon=":material/rocket_launch:", use_container_width=True):
         
         # 1. Consolidación de datos
         df_final_r = st.session_state.df_redes.copy()
