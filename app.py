@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 import base64
+import os
 from streamlit_option_menu import option_menu
 from modules.linear_solver import resolver_lp
 from modules.generador_reportes import generar_reporte_pdf
@@ -230,6 +231,12 @@ with st.sidebar:
     try:
         # Reemplaza 'ruta/a/tu/logo_umsa.png' por el nombre real de tu archivo
         logo_base64 = obtener_base64_de_archivo(r"assets\Logo_Umsa.png") 
+        ruta_logo = os.path.join("assets", "Logo_Umsa.png") # Ajusta 'assets' si tu carpeta tiene otro nombre
+        if os.path.exists(ruta_logo):
+            logo_base64 = obtener_base64_de_archivo(ruta_logo)
+            # ... resto de tu lógica de visualización ...
+        else:
+            st.sidebar.error("No se encontró el archivo del logo en la ruta especificada.")
         
         st.markdown(f"""
             <div style="text-align: center;">
