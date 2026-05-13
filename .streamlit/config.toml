@@ -1,9 +1,19 @@
 [theme]
-primaryColor = "#00FFAA" # Verde neón para los botones y sliders
-backgroundColor = "#0E1117" # Fondo oscuro profundo
-secondaryBackgroundColor = "#262730" # Color de la barra lateral
-textColor = "#FAFAFA"
+# Un verde esmeralda neón ligeramente más suave para no cansar la vista en monitores brillantes
+primaryColor = "#00D287" 
+
+# Un negro casi puro, estilo "OLED Dark Mode", muy elegante
+backgroundColor = "#09090B" 
+
+# Un gris azulado ultra oscuro para la barra lateral (crea profundidad sin desentonar)
+secondaryBackgroundColor = "#18181B" 
+
+# Texto blanco hueso para reducir la fatiga visual en lecturas largas
+textColor = "#F4F4F5" 
+
+# Cambiamos a 'monospace' para darle ese toque de "Software de Ingeniería/Terminal", o mantén 'sans serif' para algo más limpio
 font = "sans serif"
+
 [server]
 runOnSave = true
 

@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
+import base64
+from streamlit_option_menu import option_menu
 from modules.linear_solver import resolver_lp
 from modules.generador_reportes import generar_reporte_pdf
 from modules.generador_reportes import generar_reporte_pdf_transporte
@@ -12,6 +14,43 @@ from modules.generador_reportes import generar_reporte_pdf_redes
 
 # Configuración de la página
 st.set_page_config(page_title="IO Modern Solver - UMSA", layout="wide")
+st.markdown("""
+    <style>
+    /* Estilizar las métricas para que parezcan tarjetas modernas */
+    div[data-testid="metric-container"] {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        padding: 5% 10%;
+        border-radius: 10px;
+        border-left: 5px solid #3498db;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    }
+    /* Ocultar el botón de menú de Streamlit por defecto para un look más "App" */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+# Inyectar CDN de Bootstrap Icons para usar en toda la página
+st.markdown("""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+""", unsafe_allow_html=True)
+
+def titulo_con_icono(texto, icono, nivel="h2"):
+    """
+    Genera un encabezado HTML con un ícono de Bootstrap.
+    Nivel h2 equivale a st.header, h3 equivale a st.subheader.
+    """
+    html = f"""
+    <{nivel} style='color: #F4F4F5; font-weight: 600; margin-bottom: 1rem;'>
+        <i class='bi bi-{icono}' style='color: #00D287; margin-right: 10px;'></i>{texto}
+    </{nivel}>
+    """
+    st.markdown(html, unsafe_allow_html=True)
+
+def obtener_base64_de_archivo(ruta_archivo):
+    with open(ruta_archivo, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 # --- 1. INICIALIZACIÓN GLOBAL PROG LINEAL ---
 if 'df_obj' not in st.session_state:
     st.session_state.df_obj = pd.DataFrame([[0.0, 0.0]], columns=['x1', 'x2'], index=['Coeficiente'])
@@ -187,17 +226,50 @@ st.markdown("---")
 
 # Menú lateral
 with st.sidebar:
-    st.header("Menú de Modelos")
-    opcion = st.selectbox(
-        "Selecciona el módulo:",
-        ["Programación Lineal", "Modelo de Transporte", "Asignación", "Flujo de Redes"]
+    # 1. Cargamos el logo local (Asegúrate de poner la ruta correcta de tu archivo)
+    try:
+        # Reemplaza 'ruta/a/tu/logo_umsa.png' por el nombre real de tu archivo
+        logo_base64 = obtener_base64_de_archivo(r"D:\Proyectos\Universidad\Proyecto IO\assets\Logo_Umsa.png") 
+        
+        st.markdown(f"""
+            <div style="text-align: center;">
+                <img src="data:image/png;base64,{logo_base64}" width="100" style="margin-bottom: 10px;">
+                <h2 style='color: #00D287; margin-bottom: 0;'>UMSA - FCPN</h2>
+                <p style='color: #888; font-size: 0.9rem;'>Investigación Operativa I</p>
+            </div>
+            <hr style="margin-top: 5px; margin-bottom: 20px;">
+        """, unsafe_allow_html=True)
+    except Exception:
+        # Si la imagen no carga, muestra solo el texto para que no de error
+        st.markdown("<h2 style='text-align: center; color: #00D287;'>UMSA - FCPN</h2>", unsafe_allow_html=True)
+    
+    # Menú avanzado con íconos de FontAwesome
+    opcion = option_menu(
+        menu_title="Módulos",  # Título del menú
+        options=["Programación Lineal", "Modelo de Transporte", "Asignación", "Flujo de Redes"],
+        icons=["graph-up-arrow", "truck", "people-fill", "diagram-3-fill"], # Íconos
+        menu_icon="cast", # Ícono principal del menú
+        default_index=0,
+        styles={
+            "container": {"padding": "0!important", "background-color": "transparent"},
+            "icon": {"color": "#00D287", "font-size": "18px"}, 
+            "nav-link": {
+                "font-size": "15px", 
+                "text-align": "left", 
+                "margin":"5px", 
+                "--hover-color": "#27272A"
+            },
+            "nav-link-selected": {"background-color": "#27272A", "color": "white"},
+        }
     )
-    st.info(f"Módulo seleccionado: {opcion}")
-
+    
+    st.markdown("---")
+    st.caption("👨‍💻 Desarrollado por: Erick")
+    st.caption("⚙️ Motor: PuLP + CBC")
 # Lógica de navegación
 # --- 3. INTERFAZ DE PROGRAMACIÓN LINEAL -------------------------------------------------------------------
 if opcion == "Programación Lineal":
-    st.header("📊 Programación Lineal General")
+    titulo_con_icono("Programación Lineal General", "graph-up-arrow", "h2")
 
     with st.container(border=True):
         col1, col2, col3 = st.columns(3)
@@ -210,11 +282,11 @@ if opcion == "Programación Lineal":
         with col3:
             st.radio("Objetivo", ["Maximizar", "Minimizar"], horizontal=True, key="tipo_opt")
 
-    st.subheader("✍️ Coeficientes de la Función Objetivo")
+    titulo_con_icono("Coeficientes de la Función Objetivo", "pencil-square", "h3")
     # Mostramos la tabla base. Streamlit se encarga de mostrar los cambios encima.
     st.data_editor(st.session_state.df_obj, key="editor_obj", use_container_width=True)
 
-    st.subheader("✍️ Restricciones")
+    titulo_con_icono("Restricciones del Modelo", "list-check", "h3")
     st.data_editor(st.session_state.df_restr, key="editor_restr", use_container_width=True, 
                 column_config={
                     "Signo": st.column_config.SelectboxColumn(
@@ -252,118 +324,106 @@ if opcion == "Programación Lineal":
         elif resultado["status"] != "Optimal":
             st.warning(f"Atención: El problema no es Óptimo. Estado: {resultado['status']}")
         else:
-            st.success("¡Optimización Exitosa!")
-            st.divider()
+            # Feedback inmediato de éxito
+            st.toast("¡Optimización Exitosa!", icon="✅")
+            st.balloons()
             
-            # A. Métricas Principales
-            c1, c2 = st.columns(2)
-            c1.metric("Estado de la Solución", resultado["status"])
+            # --- CREACIÓN DE PESTAÑAS (TABS) MODERNAS ---
+            tab_res, tab_graf, tab_exp = st.tabs(["📊 Resultados Numéricos", "📈 Análisis Gráfico", "📄 Exportar PDF"])
             
-            val_z = resultado.get("z", 0.0)
-            c2.metric("Valor Óptimo Z", f"{val_z:,.2f}")
+            # --- PESTAÑA 1: RESULTADOS ---
+            with tab_res:
+                st.subheader("Métricas Principales")
+                c1, c2 = st.columns(2)
+                c1.metric("Estado de la Solución", resultado["status"])
+                val_z = resultado.get("z", 0.0)
+                c2.metric("Valor Óptimo Z", f"{val_z:,.2f}")
 
-            # --- Dentro del botón Resolver en app.py ---
-# ... (código anterior) ...
+                titulo_con_icono("Valores Óptimos de las Variables", "check-circle-fill", "h3")
+                df_vars = pd.DataFrame([resultado["variables"]])
+                df_vars.index = [1] 
+                st.dataframe(df_vars, use_container_width=True)
 
-            # B. Valor de las Variables de Decisión
-            st.subheader("📦 Valores Óptimos de las Variables")
-            df_vars = pd.DataFrame([resultado["variables"]])
-            # CAMBIO: Ajustamos el índice para que empiece en 1
-            df_vars.index = [1] 
-            st.dataframe(df_vars, use_container_width=True)
+                titulo_con_icono("Análisis de Sensibilidad", "search", "h3")
+                with st.expander("Ver Precios Sombra y Holguras", expanded=True):
+                    df_sens = resultado["sensibilidad"].copy()
+                    df_sens.index = df_sens.index + 1
+                    st.dataframe(df_sens, use_container_width=True)
 
-            # C. Análisis de Sensibilidad
-            st.subheader("🔍 Análisis de Sensibilidad")
-            with st.expander("Ver Precios Sombra y Holguras", expanded=True):
-                df_sens = resultado["sensibilidad"].copy()
-                # CAMBIO: Desplazamos el índice sumando 1
-                df_sens.index = df_sens.index + 1
-                st.dataframe(df_sens, use_container_width=True)
-                
-            st.balloons() # Un pequeño efecto visual por el éxito
-            if st.session_state.n_vars_slider == 2:
-                st.markdown("---")
-                st.subheader("📈 Gráfico del Modelo Geométrico")
-                
-                # Obtenemos los nombres de las variables (ej. 'x1', 'x2')
-                cols = list(obj_final.columns)
-                x1_name, x2_name = cols[0], cols[1]
-                
-                # Valores óptimos para centrar el gráfico
-                opt_x1 = resultado["variables"][x1_name]
-                opt_x2 = resultado["variables"][x2_name]
-                
-                # Definimos el límite máximo de los ejes (un poco más allá del punto óptimo)
-                max_val = max(10.0, opt_x1 * 1.5, opt_x2 * 1.5)
-                x_vals = np.linspace(0, max_val, 400)
-                
-                # Configuramos la figura con el estilo oscuro de Streamlit
-                fig, ax = plt.subplots(figsize=(8, 6))
-                plt.style.use("dark_background") # Para que combine con tu modo oscuro
-                
-                # 1. Dibujar las Restricciones
-                for idx, row in restr_final.iterrows():
-                    c1 = row[x1_name]
-                    c2 = row[x2_name]
-                    rhs = row['RHS']
-                    signo = row['Signo']
+            # --- PESTAÑA 2: GRÁFICO 2D ---
+            with tab_graf:
+                if st.session_state.n_vars_slider == 2:
+                    titulo_con_icono("Gráfico del Modelo Geometrico", "bar-chart-line", "h3")
                     
-                    # Evitar división por cero si el coeficiente de x2 es 0 (Línea vertical)
-                    if c2 != 0:
-                        y_vals = (rhs - c1 * x_vals) / c2
-                        ax.plot(x_vals, y_vals, label=f"{idx} ({signo} {rhs})", linewidth=2)
-                    else:
-                        if c1 != 0:
-                            x_vert = rhs / c1
-                            ax.axvline(x=x_vert, label=f"{idx} ({signo} {rhs})", linewidth=2, color=np.random.rand(3,))
+                    cols = list(obj_final.columns)
+                    x1_name, x2_name = cols[0], cols[1]
+                    
+                    opt_x1 = resultado["variables"][x1_name]
+                    opt_x2 = resultado["variables"][x2_name]
+                    
+                    max_val = max(10.0, opt_x1 * 1.5, opt_x2 * 1.5)
+                    x_vals = np.linspace(0, max_val, 400)
+                    
+                    fig, ax = plt.subplots(figsize=(8, 6))
+                    plt.style.use("dark_background")
+                    
+                    for idx, row in restr_final.iterrows():
+                        c1 = row[x1_name]
+                        c2 = row[x2_name]
+                        rhs = row['RHS']
+                        signo = row['Signo']
+                        
+                        if c2 != 0:
+                            y_vals = (rhs - c1 * x_vals) / c2
+                            ax.plot(x_vals, y_vals, label=f"{idx} ({signo} {rhs})", linewidth=2)
+                        else:
+                            if c1 != 0:
+                                x_vert = rhs / c1
+                                ax.axvline(x=x_vert, label=f"{idx} ({signo} {rhs})", linewidth=2, color=np.random.rand(3,))
 
-                # 2. Marcar el Punto Óptimo
-                ax.plot(opt_x1, opt_x2, marker='*', color='red', markersize=20, 
-                        label=f"Óptimo ({opt_x1:.2f}, {opt_x2:.2f})")
+                    ax.plot(opt_x1, opt_x2, marker='*', color='red', markersize=20, label=f"Óptimo ({opt_x1:.2f}, {opt_x2:.2f})")
+                    
+                    ax.set_xlim(0, max_val)
+                    ax.set_ylim(0, max_val)
+                    ax.axhline(0, color='white', linewidth=1)
+                    ax.axvline(0, color='white', linewidth=1)
+                    ax.set_xlabel(f"Variable {x1_name}", fontsize=12, fontweight='bold')
+                    ax.set_ylabel(f"Variable {x2_name}", fontsize=12, fontweight='bold')
+                    ax.grid(True, linestyle='--', alpha=0.3)
+                    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+                    
+                    st.pyplot(fig)
+                else:
+                    # Mensaje elegante si no hay 2 variables
+                    st.info("💡 El gráfico geométrico solo está disponible para modelos que tengan exactamente 2 variables de decisión.")
+
+            # --- PESTAÑA 3: EXPORTACIÓN ---
+            with tab_exp:
+                titulo_con_icono("Reporte y Documentación", "file-earmark-pdf-fill", "h3")
+                st.write("Descarga el reporte detallado con formato institucional para adjuntarlo a tus trabajos.")
                 
-                # 3. Formato del gráfico (Límites, Ejes y Leyenda)
-                ax.set_xlim(0, max_val)
-                ax.set_ylim(0, max_val)
-                ax.axhline(0, color='white', linewidth=1)
-                ax.axvline(0, color='white', linewidth=1)
-                ax.set_xlabel(f"Variable {x1_name}", fontsize=12, fontweight='bold')
-                ax.set_ylabel(f"Variable {x2_name}", fontsize=12, fontweight='bold')
-                ax.grid(True, linestyle='--', alpha=0.3)
-                
-                # Ponemos la leyenda fuera del gráfico para que no tape las líneas
-                ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-                
-                # Renderizamos en Streamlit
-                st.pyplot(fig)
-
-            st.markdown("---")
-            st.subheader("📄 Generar Documentación")
-
-            # Llamamos a la función para crear el archivo PDF temporal
-            ruta_pdf = generar_reporte_pdf(
-                "Programación Lineal", 
-                st.session_state.tipo_opt, 
-                resultado["z"], 
-                resultado["variables"], 
-                resultado.get("sensibilidad")
-            )
-
-            with open(ruta_pdf, "rb") as f:
-                st.download_button(
-                    label="📥 Descargar Reporte en PDF",
-                    data=f,
-                    file_name=f"Reporte_Optimización_{st.session_state.tipo_opt}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
+                ruta_pdf = generar_reporte_pdf(
+                    "Programación Lineal", 
+                    st.session_state.tipo_opt, 
+                    resultado["z"], 
+                    resultado["variables"], 
+                    resultado.get("sensibilidad")
                 )
 
-
+                with open(ruta_pdf, "rb") as f:
+                    st.download_button(
+                        label="📥 Descargar Reporte en PDF",
+                        data=f,
+                        file_name=f"Reporte_Optimización_{st.session_state.tipo_opt}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
 
 # --- 3. INTERFAZ DE MODELO DE TRANSPORTE -------------------------------------------------------------------
 
 
 elif opcion == "Modelo de Transporte":
-    st.header("🚚 Modelo de Transporte")
+    titulo_con_icono("Modelo de Transporte", "truck")
     
     # Configuración
     with st.container(border=True):
@@ -384,7 +444,7 @@ elif opcion == "Modelo de Transporte":
     st.info("💡 **Instrucciones:** Ingresa los costos unitarios de envío en las celdas centrales. Coloca la disponibilidad en la columna **Oferta** y los requerimientos en la fila **Demanda**.")
 
     # Matriz Interactiva
-    st.subheader("📦 Matriz de Costos, Oferta y Demanda")
+    titulo_con_icono("Matriz de Costos, Oferta y Demanda", "grid-3x3", "h3")
     st.data_editor(st.session_state.df_transp, key="editor_transp", use_container_width=True)
 
 # --- BOTÓN DE RESOLUCIÓN (Reemplazar en la sección Transporte) ---
@@ -403,69 +463,80 @@ elif opcion == "Modelo de Transporte":
         resultado = resolver_transporte(df_final_t, st.session_state.tipo_opt_transp)
 
         # 3. Mostrar Resultados Modernos
+        # 3. Mostrar Resultados Modernos
         if "error" in resultado:
             st.error(f"Error técnico: {resultado['error']}")
         elif resultado["status"] != "Optimal":
             st.warning(f"El problema no tiene solución óptima. Estado: {resultado['status']}")
         else:
-            st.success("¡Plan de Transporte Óptimo Encontrado!")
-            st.divider()
-
-            # Avisos de IO1: Balanceo
-            if not resultado["balanceado"]:
-                st.info("ℹ️ **Nota Académica:** El modelo original estaba **Desbalanceado**. El programa creó un nodo ficticio automáticamente para absorber la diferencia sin afectar el costo.")
-            
-            # Métricas
-            c1, c2 = st.columns(2)
-            c1.metric("Estado", resultado["status"])
-            val_z = resultado.get("z", 0.0)
-            c2.metric("Costo/Beneficio Óptimo (Z)", f"{val_z:,.2f}")
-
-            # Matriz de Resultados
-            st.subheader("📦 Matriz Óptima de Envíos ($x_{ij}$)")
-            st.write("Las celdas muestran la cantidad que debes enviar desde cada Origen a cada Destino.")
-            st.dataframe(resultado["matriz_resultados"], use_container_width=True)
-
-            # Multiplicadores Duales (El equivalente a los precios sombra en Transporte)
-            with st.expander("Ver Multiplicadores Duales ($u_i, v_j$)", expanded=False):
-                st.write("Valores duales para cada nodo:")
-                c_dual_o, c_dual_d = st.columns(2)
-                with c_dual_o:
-                    st.write("**Orígenes ($u_i$)**")
-                    st.json(resultado["duales_oferta"])
-                with c_dual_d:
-                    st.write("**Destinos ($v_j$)**")
-                    st.json(resultado["duales_demanda"])
-            
+            # Feedback interactivo
+            st.toast("¡Plan de Transporte Óptimo Encontrado!", icon="✅")
             st.balloons()
-            st.markdown("---")
-            st.subheader("📄 Generar Documentación")
 
-            # Preparamos el PDF de Transporte
-            ruta_pdf_t = generar_reporte_pdf_transporte(
-                st.session_state.tipo_opt_transp,
-                resultado["z"],
-                resultado["matriz_resultados"],
-                resultado["duales_oferta"],
-                resultado["duales_demanda"],
-                resultado["balanceado"]
-            )
+            # --- CREACIÓN DE PESTAÑAS (TABS) ---
+            tab_res, tab_duales, tab_exp = st.tabs(["📊 Matriz de Envíos", "🔄 Análisis Dual", "📄 Exportar PDF"])
 
-            with open(ruta_pdf_t, "rb") as f:
-                st.download_button(
-                    label="📥 Descargar Reporte de Transporte (PDF)",
-                    data=f,
-                    file_name=f"Reporte_Transporte_{st.session_state.tipo_opt_transp}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
+            # --- PESTAÑA 1: RESULTADOS Y MATRIZ ---
+            with tab_res:
+                # Avisos de IO1: Balanceo
+                if not resultado["balanceado"]:
+                    st.info("ℹ️ **Nota Académica:** El modelo original estaba **Desbalanceado**. El programa creó un nodo ficticio automáticamente para absorber la diferencia sin afectar el costo.")
+                
+                # Métricas
+                c1, c2 = st.columns(2)
+                c1.metric("Estado", resultado["status"])
+                val_z = resultado.get("z", 0.0)
+                c2.metric("Costo/Beneficio Óptimo (Z)", f"{val_z:,.2f}")
+
+                # Matriz de Resultados
+                titulo_con_icono("Matriz Óptima de Envíos", "box-seam", "h3")
+                st.write("Las celdas muestran la cantidad que debes enviar desde cada Origen a cada Destino.")
+                st.dataframe(resultado["matriz_resultados"], use_container_width=True)
+
+            # --- PESTAÑA 2: DUALES ---
+            with tab_duales:
+                titulo_con_icono("Multiplicadores Duales", "arrow-repeat", "h3")
+                st.write("Valores duales ($u_i, v_j$) asociados a las restricciones de oferta y demanda del modelo:")
+                
+                with st.container(border=True):
+                    c_dual_o, c_dual_d = st.columns(2)
+                    with c_dual_o:
+                        st.markdown("**Orígenes ($u_i$)**")
+                        st.json(resultado["duales_oferta"])
+                    with c_dual_d:
+                        st.markdown("**Destinos ($v_j$)**")
+                        st.json(resultado["duales_demanda"])
+
+            # --- PESTAÑA 3: EXPORTACIÓN ---
+            with tab_exp:
+                titulo_con_icono("Reporte y Documentación", "file-earmark-pdf-fill", "h3")
+                st.write("Descarga el reporte detallado con la matriz de envíos y análisis de balanceo.")
+                
+                # Preparamos el PDF de Transporte
+                ruta_pdf_t = generar_reporte_pdf_transporte(
+                    st.session_state.tipo_opt_transp,
+                    resultado["z"],
+                    resultado["matriz_resultados"],
+                    resultado["duales_oferta"],
+                    resultado["duales_demanda"],
+                    resultado["balanceado"]
                 )
+
+                with open(ruta_pdf_t, "rb") as f:
+                    st.download_button(
+                        label="📥 Descargar Reporte de Transporte (PDF)",
+                        data=f,
+                        file_name=f"Reporte_Transporte_{st.session_state.tipo_opt_transp}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
 
 
 
 
 # --- MÓDULO: MODELO DE ASIGNACIÓN -----------------------------------------------------------------
 elif opcion == "Asignación":
-    st.header("👥 Modelo de Asignación")
+    titulo_con_icono("Modelo de Asignación", "people-fill")
     
     with st.container(border=True):
         col1, col2, col3 = st.columns(3)
@@ -480,7 +551,7 @@ elif opcion == "Asignación":
             
     st.info("💡 **Instrucciones:** Ingresa los costos, tiempos o utilidades en la matriz. El programa balanceará automáticamente si el número de trabajadores no coincide con el de tareas.")
 
-    st.subheader("📋 Matriz de Costos/Utilidades")
+    titulo_con_icono("Matriz de Asignación", "table", "h3")
     st.data_editor(st.session_state.df_asign, key="editor_asign", use_container_width=True)
 
     st.markdown("---")
@@ -498,56 +569,59 @@ elif opcion == "Asignación":
         resultado = resolver_asignacion(df_final_a, st.session_state.tipo_opt_asign)
 
         # Mostrar Resultados
+        # Mostrar Resultados
         if "error" in resultado:
             st.error(f"Error técnico: {resultado['error']}")
         elif resultado["status"] != "Optimal":
             st.warning(f"No se encontró solución óptima. Estado: {resultado['status']}")
         else:
-            st.success("¡Asignación Óptima Encontrada!")
-            st.divider()
-
-            if not resultado["balanceado"]:
-                st.info(f"ℹ️ **Nota de Balanceo:** Había {resultado['n_trabajadores']} trabajadores y {resultado['n_tareas']} tareas. Se añadieron elementos ficticios para balancear el modelo.")
-
-            c1, c2 = st.columns(2)
-            c1.metric("Estado", resultado["status"])
-            val_z = resultado.get("z", 0.0)
-            c2.metric("Valor Óptimo (Z)", f"{val_z:,.2f}")
-
-            st.subheader("🎯 Detalle de Asignaciones")
-            
-            # Mostramos los resultados de dos formas: Lista y Matriz
-            st.write("A continuación se muestra quién debe hacer qué tarea:")
-            st.table(resultado["lista_asignaciones"])
-            
-            with st.expander("Ver Matriz Binaria de Asignación ($x_{ij}$)", expanded=False):
-                st.write("Donde `1.0` significa asignado y `0.0` no asignado.")
-                st.dataframe(resultado["matriz_resultados"], use_container_width=True)
-            
+            # Feedback interactivo
+            st.toast("¡Asignación Óptima Completada!", icon="✅")
             st.balloons()
-            st.markdown("---")
-            st.subheader("📄 Generar Documentación")
 
-            # Preparamos el PDF de Asignación
-            ruta_pdf_a = generar_reporte_pdf_asignacion(
-                st.session_state.tipo_opt_asign,
-                resultado["z"],
-                resultado["lista_asignaciones"],
-                resultado["matriz_resultados"],
-                resultado["balanceado"]
-            )
+            # --- CREACIÓN DE PESTAÑAS (TABS) ---
+            tab_plan, tab_exp = st.tabs(["🎯 Plan de Asignación", "📄 Exportar PDF"])
 
-            with open(ruta_pdf_a, "rb") as f:
-                st.download_button(
-                    label="📥 Descargar Reporte de Asignación (PDF)",
-                    data=f,
-                    file_name=f"Reporte_Asignacion_{st.session_state.tipo_opt_asign}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
+            # --- PESTAÑA 1: PLAN Y MATRIZ ---
+            with tab_plan:
+                if not resultado["balanceado"]:
+                    st.info(f"ℹ️ **Nota de Balanceo:** Había {resultado['n_trabajadores']} trabajadores y {resultado['n_tareas']} tareas. Se añadieron elementos ficticios automáticamente.")
+
+                c1, c2 = st.columns(2)
+                c1.metric("Estado", resultado["status"])
+                val_z = resultado.get("z", 0.0)
+                c2.metric("Valor Óptimo (Z)", f"{val_z:,.2f}")
+
+                titulo_con_icono("Matriz de Asignación", "person-badge", "h3")
+                st.write("A continuación se muestra la asignación óptima de tareas:")
+                st.table(resultado["lista_asignaciones"])
+                
+                with st.expander("Ver Matriz Binaria de Decisión ($x_{ij}$)", expanded=False):
+                    st.write("Representación matemática de la asignación (1 = Asignado, 0 = No asignado):")
+                    st.dataframe(resultado["matriz_resultados"], use_container_width=True)
+
+            # --- PESTAÑA 2: EXPORTACIÓN ---
+            with tab_exp:
+                titulo_con_icono("Reporte y Documentación", "file-earmark-pdf-fill", "h3")
+                st.write("Obtén un reporte formal en PDF con el plan de asignación y la matriz técnica.")
+                
+                # Preparamos el PDF de Asignación
+                ruta_pdf_a = generar_reporte_pdf_asignacion(
+                    st.session_state.tipo_opt_asign,
+                    resultado["z"],
+                    resultado["lista_asignaciones"],
+                    resultado["matriz_resultados"],
+                    resultado["balanceado"]
                 )
 
-
-
+                with open(ruta_pdf_a, "rb") as f:
+                    st.download_button(
+                        label="📥 Descargar Reporte de Asignación (PDF)",
+                        data=f,
+                        file_name=f"Reporte_Asignacion_{st.session_state.tipo_opt_asign}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
 
 
 
@@ -562,7 +636,7 @@ elif opcion == "Asignación":
 
 # --- MÓDULO: FLUJO DE REDES ---
 elif opcion == "Flujo de Redes":
-    st.header("🕸️ Modelo de Flujo de Redes")
+    titulo_con_icono("Flujo de Redes", "diagram-3-fill")
     
     with st.container(border=True):
         col1, col2 = st.columns([1, 2])
@@ -586,7 +660,7 @@ elif opcion == "Flujo de Redes":
     with c_destino:
         st.text_input("🏁 Nodo Final (Sink)", value="T", key="nodo_final")
 
-    st.subheader("📝 Lista de Arcos (Edge List)")
+    titulo_con_icono("Definición de Arcos", "vector-pen", "h3")
     
     tipo_prob = st.session_state.tipo_problema_redes
     column_config = {
@@ -636,95 +710,85 @@ elif opcion == "Flujo de Redes":
         elif resultado["status"] != "Optimal":
             st.warning("No se encontró una solución óptima para esta red.")
         else:
-            st.success(f"¡Cálculo de {tipo_prob} Exitoso!")
-            st.divider()
-            
-            c1, c2 = st.columns(2)
-            c1.metric("Estado", "Óptimo")
-            c2.metric(label_z, f"{resultado['valor']:,.2f}")
-            
-            st.subheader("🛤️ Detalle de Rutas Utilizadas")
-            if not resultado["rutas"].empty:
-                st.dataframe(resultado["rutas"], use_container_width=True)
-                
-                # Restaurado: Análisis de cuellos de botella exclusivo para Flujo Máximo
-                if tipo_prob == "Flujo Máximo":
-                    df_rutas = resultado["rutas"]
-                    rutas_saturadas = len(df_rutas[df_rutas["Capacidad Sobrante"] == 0])
-                    st.info(f"💡 **Análisis de Cuellos de Botella:** Tienes **{rutas_saturadas}** rutas operando a su máxima capacidad (Sobrante = 0). Para mejorar el flujo total, debes expandir la capacidad de estas rutas.")
-            else:
-                st.warning("No es posible establecer una ruta con esta configuración.")
-            
+            # Feedback interactivo
+            st.toast(f"¡Cálculo de {tipo_prob} Exitoso!", icon="✅")
             st.balloons()
-
-            st.markdown("---")
-            st.subheader("🌐 Visualización del Grafo Óptimo")
             
-            try:
-                # 1. Configurar NetworkX y Matplotlib
-                fig, ax = plt.subplots(figsize=(10, 6))
-                plt.style.use("dark_background") # Estilo oscuro para proteger la vista
-                
-                G = nx.DiGraph() # Grafo Dirigido
-                
-                # 2. Extraer rutas activas (las que devolvió el solver)
-                rutas_activas = []
-                for _, row in resultado["rutas"].iterrows():
-                    rutas_activas.append((str(row["De"]), str(row["A"])))
-                
-                # 3. Construir el grafo con TODOS los arcos originales
-                for _, row in df_final_r.iterrows():
-                    u = str(row['Nodo Origen']).strip()
-                    v = str(row['Nodo Destino']).strip()
-                    if u and v: # Si no están vacíos
-                        G.add_edge(u, v)
-                
-                # 4. Dibujar el grafo
-                # spring_layout organiza los nodos para que no se superpongan
-                pos = nx.spring_layout(G, seed=42) 
-                
-                # Dibujar nodos
-                nx.draw_networkx_nodes(G, pos, node_color='#9b59b6', node_size=700, ax=ax)
-                nx.draw_networkx_labels(G, pos, font_color='white', font_weight='bold', ax=ax)
-                
-                # Dibujar arcos inactivos (gris claro/transparente)
-                nx.draw_networkx_edges(G, pos, edgelist=G.edges(), edge_color='#555555', arrows=True, ax=ax)
-                
-                # Dibujar arcos ACTIVOS (los que eligió el solver) en un color brillante
-                nx.draw_networkx_edges(G, pos, edgelist=rutas_activas, edge_color='#2ecc71', width=3.0, arrows=True, arrowsize=20, ax=ax)
-                
-                ax.set_title(f"Grafo de Solución: {tipo_prob}", color='white', pad=20)
-                plt.axis('off') # Ocultar los ejes de coordenadas
-                st.pyplot(fig)
-                
-            except Exception as e:
-                st.warning(f"No se pudo generar la visualización gráfica del grafo: {e}")
+            # --- CREACIÓN DE PESTAÑAS (TABS) ---
+            tab_res, tab_graf, tab_exp = st.tabs(["🛤️ Resultados Numéricos", "🌐 Grafo Visual", "📄 Exportar PDF"])
 
+            # --- PESTAÑA 1: RESULTADOS ---
+            with tab_res:
+                st.divider()
+                c1, c2 = st.columns(2)
+                c1.metric("Estado", "Óptimo")
+                c2.metric(label_z, f"{resultado['valor']:,.2f}")
+                
+                titulo_con_icono("Detalle de Rutas Utilizadas", "geo-alt", "h3")
+                if not resultado["rutas"].empty:
+                    st.dataframe(resultado["rutas"], use_container_width=True)
+                    
+                    # Análisis de cuellos de botella exclusivo para Flujo Máximo
+                    if tipo_prob == "Flujo Máximo":
+                        df_rutas = resultado["rutas"]
+                        rutas_saturadas = len(df_rutas[df_rutas["Capacidad Sobrante"] == 0])
+                        st.info(f"💡 **Análisis de Cuellos de Botella:** Tienes **{rutas_saturadas}** rutas operando a su máxima capacidad (Sobrante = 0). Para mejorar el flujo total, debes expandir la capacidad de estas rutas.")
+                else:
+                    st.warning("No es posible establecer una ruta con esta configuración.")
 
-            # --- BOTÓN DE DESCARGA PDF ---
-            st.markdown("---")
-            st.subheader("📄 Generar Documentación")
-            
-            ruta_pdf_r = generar_reporte_pdf_redes(
-                tipo_prob,
-                origen,
-                destino,
-                resultado["valor"],
-                resultado["rutas"]
-            )
+            # --- PESTAÑA 2: VISUALIZACIÓN GRÁFICA ---
+            with tab_graf:
+                titulo_con_icono("Visualización del Grafo Óptimo", "share", "h3")
+                st.write("Las rutas resaltadas en verde representan el flujo óptimo o la ruta más corta encontrada.")
+                
+                try:
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    plt.style.use("dark_background") # Estilo oscuro para proteger la vista
+                    
+                    G = nx.DiGraph() 
+                    
+                    rutas_activas = []
+                    for _, row in resultado["rutas"].iterrows():
+                        rutas_activas.append((str(row["De"]), str(row["A"])))
+                    
+                    for _, row in df_final_r.iterrows():
+                        u = str(row['Nodo Origen']).strip()
+                        v = str(row['Nodo Destino']).strip()
+                        if u and v: 
+                            G.add_edge(u, v)
+                    
+                    pos = nx.spring_layout(G, seed=42) 
+                    
+                    nx.draw_networkx_nodes(G, pos, node_color='#9b59b6', node_size=700, ax=ax)
+                    nx.draw_networkx_labels(G, pos, font_color='white', font_weight='bold', ax=ax)
+                    nx.draw_networkx_edges(G, pos, edgelist=G.edges(), edge_color='#555555', arrows=True, ax=ax)
+                    nx.draw_networkx_edges(G, pos, edgelist=rutas_activas, edge_color='#2ecc71', width=3.0, arrows=True, arrowsize=20, ax=ax)
+                    
+                    ax.set_title(f"Grafo de Solución: {tipo_prob}", color='white', pad=20)
+                    plt.axis('off') 
+                    st.pyplot(fig)
+                    
+                except Exception as e:
+                    st.warning(f"No se pudo generar la visualización gráfica del grafo: {e}")
 
-            with open(ruta_pdf_r, "rb") as f:
-                st.download_button(
-                    label="📥 Descargar Reporte de Redes (PDF)",
-                    data=f,
-                    file_name=f"Reporte_{tipo_prob.replace(' ', '_')}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
+            # --- PESTAÑA 3: EXPORTACIÓN ---
+            with tab_exp:
+                titulo_con_icono("Reporte y Documentación", "file-earmark-pdf-fill", "h3")
+                st.write("Descarga un reporte formal en PDF con las rutas utilizadas y métricas generales del modelo de redes.")
+                
+                ruta_pdf_r = generar_reporte_pdf_redes(
+                    tipo_prob,
+                    origen,
+                    destino,
+                    resultado["valor"],
+                    resultado["rutas"]
                 )
 
-with st.expander("Ver Manual de Uso"):
-    st.write("""
-    1. Define las dimensiones arriba.
-    2. Llena los coeficientes en la tabla de abajo.
-    3. Presiona el botón 'Resolver' para obtener el resultado.
-    """)
+                with open(ruta_pdf_r, "rb") as f:
+                    st.download_button(
+                        label="📥 Descargar Reporte de Redes (PDF)",
+                        data=f,
+                        file_name=f"Reporte_{tipo_prob.replace(' ', '_')}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
