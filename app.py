@@ -221,9 +221,6 @@ def ajustar_dimensiones_redes():
         # Recortar filas sobrantes
         st.session_state.df_redes = st.session_state.df_redes.iloc[:n_arcos]
 
-# Título principal
-st.title("🚀 Suite de Investigación Operativa")
-st.markdown("---")
 
 # Menú lateral
 with st.sidebar:
@@ -252,10 +249,9 @@ with st.sidebar:
     
     # Menú avanzado con íconos de FontAwesome
     opcion = option_menu(
-        menu_title="Módulos",  # Título del menú
-        options=["Programación Lineal", "Modelo de Transporte", "Asignación", "Flujo de Redes"],
-        icons=["graph-up-arrow", "truck", "people-fill", "diagram-3-fill"], # Íconos
-        menu_icon="cast", # Ícono principal del menú
+        menu_title="Módulos",
+        options=["Inicio", "Programación Lineal", "Modelo de Transporte", "Asignación", "Flujo de Redes"],
+        icons=["house-fill", "graph-up-arrow", "truck", "people-fill", "diagram-3-fill"],
         default_index=0,
         styles={
             "container": {"padding": "0!important", "background-color": "transparent"},
@@ -273,9 +269,239 @@ with st.sidebar:
     st.markdown("---")
     st.caption("👨‍💻 Desarrollado por: Erick")
     st.caption("⚙️ Motor: PuLP + CBC")
+
 # Lógica de navegación
+# --- INTERFAZ DE LANDING PAGE -----------------------------------------------------------------------------
+if opcion == "Inicio":
+    # --- ESTILOS CSS ADICIONALES PARA LA LANDING PAGE ---
+    st.markdown("""
+        <style>
+        .hero-section {
+            padding: 60px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #09090B 0%, #18181B 100%);
+            border-radius: 20px;
+            border: 1px solid #27272A;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 40px;
+        }
+        .feature-card {
+            background: #18181B;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #27272A;
+            transition: all 0.3s ease;
+            text-align: center;
+            height: 100%;
+        }
+        .feature-card:hover {
+            border-color: #00D287;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 210, 135, 0.2);
+        }
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 210, 135, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #00D287;
+            font-size: 24px;
+        }
+        .highlight-text {
+            color: #00D287;
+            font-weight: bold;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # --- SECCIÓN HERO ---
+    st.markdown(f"""
+        <div class="hero-section">
+            <h1 style='font-size: 3.5rem; color: #F4F4F5; margin-bottom: 10px;'>
+                IO <span style='color: #00D287;'>Modern</span> Solver
+            </h1>
+            <p style='font-size: 1.2rem; color: #A1A1AA; max-width: 800px; margin: 0 auto;'>
+                La plataforma definitiva para la optimización matemática y la toma de decisiones estratégicas. Transformando la complejidad operativa en eficiencia absoluta.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # --- TEXTO INTRODUCTORIO ---
+    col_intro1, col_intro2 = st.columns([2, 1])
+    with col_intro1:
+        titulo_con_icono("Sobre la Plataforma", "info-circle", "h2")
+        st.write("""
+            En la intersección entre la ciencia de datos, la economía y la ingeniería de software se encuentra la capacidad de tomar decisiones precisas. **IO Modern Solver** nace como una solución arquitectónica diseñada para abordar problemas críticos de asignación de recursos, logística y planificación estratégica.
+        """)
+        st.write("""
+            Desarrollada para el ecosistema académico y profesional, esta herramienta elimina la barrera entre la teoría matemática abstracta y su aplicación práctica. Al aprovechar motores de resolución de vanguardia como <span class='highlight-text'>PuLP y algoritmos de teoría de grafos</span>, permite a investigadores, analistas y líderes maximizar utilidades y minimizar costos operativos con un rigor cuantitativo absoluto.
+        """, unsafe_allow_html=True)
+
+    with col_intro2:
+        st.markdown("""
+            <div style="background: #18181B; padding: 20px; border-radius: 15px; border-left: 5px solid #00D287;">
+                <h4 style="margin-top:0; color: #F4F4F5;">🚀 Flujo de Trabajo</h4>
+                <p style="font-size: 0.9rem; color: #A1A1AA; line-height: 1.6;">
+                    <strong>1. Modelado:</strong> Selecciona el algoritmo en el menú lateral.<br>
+                    <strong>2. Parametrización:</strong> Define la dimensionalidad del sistema.<br>
+                    <strong>3. Ingesta de Datos:</strong> Configura la matriz de costos o arcos.<br>
+                    <strong>4. Ejecución:</strong> Computa el estado óptimo y exporta el análisis.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    titulo_con_icono("Módulos de Optimización Cuantitativa", "grid-fill", "h2")
+
+    # --- TARJETAS DE MÓDULOS (Features) ---
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+        st.markdown("""
+            <div class="feature-card">
+                <div class="icon-circle"><i class="bi bi-graph-up-arrow"></i></div>
+                <h4 style="color: #F4F4F5;">Prog. Lineal</h4>
+                <p style="font-size: 0.85rem; color: #A1A1AA;">
+                    Resolución algorítmica multidimensional con análisis de sensibilidad profundo, evaluación de holguras y precios sombra para escenarios de maximización económica.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown("""
+            <div class="feature-card">
+                <div class="icon-circle"><i class="bi bi-truck"></i></div>
+                <h4 style="color: #F4F4F5;">Transporte</h4>
+                <p style="font-size: 0.85rem; color: #A1A1AA;">
+                    Optimización avanzada de cadenas de suministro. Incorpora balanceo matricial automático y cálculo de multiplicadores duales para la auditoría de costos logísticos.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c3:
+        st.markdown("""
+            <div class="feature-card">
+                <div class="icon-circle"><i class="bi bi-people-fill"></i></div>
+                <h4 style="color: #F4F4F5;">Asignación</h4>
+                <p style="font-size: 0.85rem; color: #A1A1AA;">
+                    Vinculación inteligente de agentes a tareas mediante programación entera binaria, garantizando la máxima rentabilidad en la distribución de capital humano.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with c4:
+        st.markdown("""
+            <div class="feature-card">
+                <div class="icon-circle"><i class="bi bi-diagram-3-fill"></i></div>
+                <h4 style="color: #F4F4F5;">Redes</h4>
+                <p style="font-size: 0.85rem; color: #A1A1AA;">
+                    Modelado topológico de grafos dirigidos. Capacidad analítica para identificar cuellos de botella sistémicos y determinar rutas de latencia o distancia mínima.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    titulo_con_icono("Aplicaciones y Casos de Uso Estratégicos", "lightbulb-fill", "h2")
+
+    # Estilos específicos para los casos de uso
+    st.markdown("""
+        <style>
+        .use-case-box {
+            background: #18181B;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #00D287;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        .use-case-title {
+            color: #00D287;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .use-case-text {
+            color: #A1A1AA;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Fila 1 de Casos de Uso
+    cu_col1, cu_col2 = st.columns(2)
+
+    with cu_col1:
+        st.markdown("""
+            <div class="use-case-box">
+                <div class="use-case-title">
+                    <i class="bi bi-briefcase-fill" style="margin-right:10px;"></i>
+                    Optimización de Mix de Producción
+                </div>
+                <p class="use-case-text">
+                    <strong>Escenario:</strong> Una fábrica dispone de recursos limitados (materia prima, horas hombre) para elaborar distintos productos con diferentes márgenes de utilidad.<br>
+                    <strong>Aplicación:</strong> El modelo de <em>Programación Lineal</em> determina la cantidad exacta de cada producto a fabricar para maximizar el beneficio neto total respetando todas las restricciones operativas.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with cu_col2:
+        st.markdown("""
+            <div class="use-case-box">
+                <div class="use-case-title">
+                    <i class="bi bi-geo-alt-fill" style="margin-right:10px;"></i>
+                    Logística y Distribución Nacional
+                </div>
+                <p class="use-case-text">
+                    <strong>Escenario:</strong> Una cadena de suministros debe mover mercancía desde múltiples centros de acopio hacia diversos puntos de venta minorista en Bolivia.<br>
+                    <strong>Aplicación:</strong> El <em>Modelo de Transporte</em> minimiza los costos de flete y logística, asegurando que se satisfaga la demanda de cada cliente sin exceder la capacidad de las plantas de origen.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Fila 2 de Casos de Uso
+    cu_col3, cu_col4 = st.columns(2)
+
+    with cu_col3:
+        st.markdown("""
+            <div class="use-case-box">
+                <div class="use-case-title">
+                    <i class="bi bi-person-gear" style="margin-right:10px;"></i>
+                    Gestión de Talento y Proyectos
+                </div>
+                <p class="use-case-text">
+                    <strong>Escenario:</strong> Una consultora de software necesita asignar líderes técnicos a proyectos específicos según su especialidad y costo por hora.<br>
+                    <strong>Aplicación:</strong> El <em>Modelo de Asignación</em> resuelve el emparejamiento 1 a 1 de manera óptima, garantizando que el talento humano sea aprovechado de forma eficiente para reducir el gasto presupuestario.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with cu_col4:
+        st.markdown("""
+            <div class="use-case-box">
+                <div class="use-case-title">
+                    <i class="bi bi-cpu-fill" style="margin-right:10px;"></i>
+                    Infraestructura de Datos y Redes
+                </div>
+                <p class="use-case-text">
+                    <strong>Escenario:</strong> Una operadora de telecomunicaciones necesita determinar el ancho de banda máximo que puede fluir a través de su infraestructura sin saturar los nodos.<br>
+                    <strong>Aplicación:</strong> Los algoritmos de <em>Flujo de Redes</em> identifican los cuellos de botella y las rutas críticas, optimizando la latencia y la capacidad de transmisión en sistemas distribuidos.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+    
+
+    st.markdown("---")
+    st.caption("Arquitectura de Software desarrollada para la Facultad de Ciencias Puras y Naturales - UMSA")
 # --- 3. INTERFAZ DE PROGRAMACIÓN LINEAL -------------------------------------------------------------------
-if opcion == "Programación Lineal":
+elif opcion == "Programación Lineal":
+    st.title("🚀 Suite de Investigación Operativa")
+    st.markdown("---")
     titulo_con_icono("Programación Lineal General", "graph-up-arrow", "h2")
 
     with st.container(border=True):
@@ -430,6 +656,8 @@ if opcion == "Programación Lineal":
 
 
 elif opcion == "Modelo de Transporte":
+    st.title("🚀 Suite de Investigación Operativa")
+    st.markdown("---")
     titulo_con_icono("Modelo de Transporte", "truck")
     
     # Configuración
@@ -543,6 +771,8 @@ elif opcion == "Modelo de Transporte":
 
 # --- MÓDULO: MODELO DE ASIGNACIÓN -----------------------------------------------------------------
 elif opcion == "Asignación":
+    st.title("🚀 Suite de Investigación Operativa")
+    st.markdown("---")
     titulo_con_icono("Modelo de Asignación", "people-fill")
     
     with st.container(border=True):
@@ -643,6 +873,8 @@ elif opcion == "Asignación":
 
 # --- MÓDULO: FLUJO DE REDES ---
 elif opcion == "Flujo de Redes":
+    st.title("🚀 Suite de Investigación Operativa")
+    st.markdown("---")
     titulo_con_icono("Flujo de Redes", "diagram-3-fill")
     
     with st.container(border=True):
