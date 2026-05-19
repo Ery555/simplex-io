@@ -267,7 +267,6 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.caption("👨‍💻 Desarrollado por: Erick")
     st.caption("⚙️ Motor: PuLP + CBC")
 
 # Lógica de navegación
