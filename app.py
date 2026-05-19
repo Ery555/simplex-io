@@ -315,12 +315,42 @@ if opcion == "Inicio":
             color: #00D287;
             font-weight: bold;
         }
+        /* Animaciones estilo Framer Motion / Tailwind */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-hero {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        /* Botón CTA estilo Tailwind */
+        .cta-button {
+            display: inline-block;
+            background-color: #00D287;
+            color: #09090B;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        .cta-button:hover {
+            background-color: #00FFAA;
+            box-shadow: 0 0 20px rgba(0, 210, 135, 0.4);
+            transform: scale(1.05);
+        }
         </style>
     """, unsafe_allow_html=True)
 
     # --- SECCIÓN HERO ---
     st.markdown(f"""
-        <div class="hero-section">
+        <div class="hero-section animate-hero">
             <h1 style='font-size: 3.5rem; color: #F4F4F5; margin-bottom: 10px;'>
                 IO <span style='color: #00D287;'>Modern</span> Solver
             </h1>
@@ -496,8 +526,6 @@ if opcion == "Inicio":
         """, unsafe_allow_html=True)
     
 
-    st.markdown("---")
-    st.caption("Arquitectura de Software desarrollada para la Facultad de Ciencias Puras y Naturales - UMSA")
 # --- 3. INTERFAZ DE PROGRAMACIÓN LINEAL -------------------------------------------------------------------
 elif opcion == "Programación Lineal":
     st.title("🚀 Suite de Investigación Operativa")
@@ -1031,3 +1059,56 @@ elif opcion == "Flujo de Redes":
                         mime="application/pdf",
                         use_container_width=True
                     )
+# --- FOOTER INSTITUCIONAL (Añadir al final del archivo app.py) ---
+st.markdown(" <br><br> ", unsafe_allow_html=True) # Espaciado final
+
+st.markdown("""
+    <style>
+    .footer-container {
+        width: 100%;
+        padding: 40px 0 20px 0;
+        margin-top: 60px;
+        border-top: 1px solid #27272A;
+        text-align: center;
+        background-color: transparent;
+    }
+    .footer-text {
+        color: #A1A1AA;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    .footer-brand {
+        color: #F4F4F5;
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+    }
+    .footer-divider {
+        width: 50px;
+        height: 2px;
+        background-color: #00D287;
+        margin: 15px auto;
+        border-radius: 2px;
+    }
+    .bi-university {
+        color: #00D287;
+        margin-right: 8px;
+    }
+    </style>
+    
+    <div class="footer-container">
+        <div class="footer-brand">
+            <i class="bi bi-bank2 bi-university"></i> UNIVERSIDAD MAYOR DE SAN ANDRÉS
+        </div>
+        <div class="footer-text">
+            Facultad de Ciencias Puras y Naturales · Carrera de Informática
+        </div>
+        <div class="footer-text" style="font-style: italic; opacity: 0.8;">
+            Investigación Operativa I · Proyecto de Optimización Cuantitativa
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-text" style="font-size: 0.8rem; letter-spacing: 2px;">
+            LA PAZ - BOLIVIA · 2026
+        </div>
+    </div>
+""", unsafe_allow_html=True)
