@@ -686,7 +686,7 @@ elif opcion == "Programación Lineal":
 
 
 elif opcion == "Modelo de Transporte":
-    st.title("🚀 Suite de Investigación Operativa")
+    st.title("Suite de Investigación Operativa")
     st.markdown("---")
     titulo_con_icono("Modelo de Transporte", "truck")
     
@@ -801,7 +801,7 @@ elif opcion == "Modelo de Transporte":
 
 # --- MÓDULO: MODELO DE ASIGNACIÓN -----------------------------------------------------------------
 elif opcion == "Asignación":
-    st.title("🚀 Suite de Investigación Operativa")
+    st.title("Suite de Investigación Operativa")
     st.markdown("---")
     titulo_con_icono("Modelo de Asignación", "people-fill")
     
@@ -903,7 +903,7 @@ elif opcion == "Asignación":
 
 # --- MÓDULO: FLUJO DE REDES ---
 elif opcion == "Flujo de Redes":
-    st.title("🚀 Suite de Investigación Operativa")
+    st.title("Suite de Investigación Operativa")
     st.markdown("---")
     titulo_con_icono("Flujo de Redes", "diagram-3-fill")
     
