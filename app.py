@@ -367,7 +367,7 @@ if opcion == "Inicio":
     with col_intro1:
         titulo_con_icono("Sobre la Plataforma", "info-circle", "h2")
         st.write("""
-            En la intersección entre la ciencia de datos, la economía y la ingeniería de software se encuentra la capacidad de tomar decisiones precisas. **IO Modern Solver** nace como una solución arquitectónica diseñada para abordar problemas críticos de asignación de recursos, logística y planificación estratégica.
+            En la intersección entre la ciencia de datos, la economía y la ingeniería de software se encuentra la capacidad de tomar decisiones precisas. **SIMPLEX IO** nace como una solución arquitectónica diseñada para abordar problemas críticos de asignación de recursos, logística y planificación estratégica.
         """)
         st.write("""
             Desarrollada para el ecosistema académico y profesional, esta herramienta elimina la barrera entre la teoría matemática abstracta y su aplicación práctica. Al aprovechar motores de resolución de vanguardia como <span class='highlight-text'>PuLP y algoritmos de teoría de grafos</span>, permite a investigadores, analistas y líderes maximizar utilidades y minimizar costos operativos con un rigor cuantitativo absoluto.
