@@ -14,7 +14,7 @@ from modules.generador_reportes import generar_reporte_pdf_redes
 
 
 # Configuración de la página
-st.set_page_config(page_title="IO Modern Solver - UMSA", layout="wide")
+st.set_page_config(page_title="SIMPLEX IO - UMSA", layout="wide")
 st.markdown("""
     <style>
     /* Estilizar las métricas para que parezcan tarjetas modernas */
@@ -351,11 +351,14 @@ if opcion == "Inicio":
     st.markdown(f"""
         <div class="hero-section animate-hero">
             <h1 style='font-size: 3.5rem; color: #F4F4F5; margin-bottom: 10px;'>
-                IO <span style='color: #00D287;'>Modern</span> Solver
+                SIMPLEX <span style='color: #00D287;'>IO</span>
             </h1>
             <p style='font-size: 1.2rem; color: #A1A1AA; max-width: 800px; margin: 0 auto;'>
                 La plataforma definitiva para la optimización matemática y la toma de decisiones estratégicas. Transformando la complejidad operativa en eficiencia absoluta.
             </p>
+            <div style="margin-top: 25px;">
+                <p style="color: #F4F4F5; font-size: 0.95rem; opacity: 0.8;">👈 Selecciona un módulo en el panel lateral para empezar</p>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
