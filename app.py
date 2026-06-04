@@ -376,7 +376,7 @@ if opcion == "Inicio":
     with col_intro2:
         st.markdown("""
             <div style="background: #18181B; padding: 20px; border-radius: 15px; border-left: 5px solid #00D287;">
-                <h4 style="margin-top:0; color: #F4F4F5;">🚀 Flujo de Trabajo</h4>
+                <h4 style="margin-top:0; color: #F4F4F5;">Flujo de Trabajo</h4>
                 <p style="font-size: 0.9rem; color: #A1A1AA; line-height: 1.6;">
                     <strong>1. Modelado:</strong> Selecciona el algoritmo en el menú lateral.<br>
                     <strong>2. Parametrización:</strong> Define la dimensionalidad del sistema.<br>
