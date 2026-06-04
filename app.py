@@ -530,7 +530,7 @@ if opcion == "Inicio":
 
 # --- 3. INTERFAZ DE PROGRAMACIÓN LINEAL -------------------------------------------------------------------
 elif opcion == "Programación Lineal":
-    st.title("🚀 Suite de Investigación Operativa")
+    st.title("Suite de Investigación Operativa")
     st.markdown("---")
     titulo_con_icono("Programación Lineal General", "graph-up-arrow", "h2")
 
